@@ -1,1 +1,1 @@
-A small server-side shipping list written in NodeJS.
+A small server-side shipping list written in node.

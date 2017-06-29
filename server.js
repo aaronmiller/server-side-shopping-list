@@ -45,6 +45,10 @@ app.get('/shopping-list', (req, res) => {
   res.json(ShoppingList.get());
 });
 
+app.get('/recipes', (req, res) => {
+  res.json(Recipes.get());
+});
+
 app.post('/shopping-list', jsonParser, (req, res) => {
   // ensure `name` and `budget` are in request body
   const requiredFields = ['name', 'budget'];
@@ -58,6 +62,20 @@ app.post('/shopping-list', jsonParser, (req, res) => {
   }
 
   const item = ShoppingList.create(req.body.name, req.body.budget);
+  res.status(201).json(item);
+});
+
+app.post('/recipes', jsonParser, (req, res) => {
+  const requiredFields = ['name', 'ingredients'];
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+  const item = Recipes.create(req.body.name, req.body.ingredients);
   res.status(201).json(item);
 });
 
@@ -71,64 +89,6 @@ app.delete('/recipes/:id', (req, res) => {
   Recipes.delete(req.params.id);
   console.log(`Deleted recipe \`${req.params.id}\``);
   res.status(204).end()
-});
-
-
-// when new recipe added, ensure has required fields. if not,
-// log error and return 400 status code with hepful message.
-// if okay, add new item, and return it with a status 201.
-app.post('/recipes', jsonParser, (req, res) => {
-  // ensure `name` and `budget` are in request body
-  const requiredFields = ['name', 'ingredients'];
-  for (let i=0; i<requiredFields.length; i += 1) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`
-      console.error(message);
-      return res.status(400).send(message);
-    }
-  }
-  const item = Recipes.create(req.body.name, req.body.ingredients);
-  res.status(201).json(item);
-});
-
-
-app.get('/recipes', (req, res) => {
-  res.json(Recipes.get());
-})
-
-app.post('/shopping-list', jsonParser, (req, res) => {
-  // ensure `name` and `budget` are in request body
-  const requiredFields = ['name', 'budget'];
-  for (let i = 0; i < requiredFields.length; i += 1) {
-    const field = requiredFields[i];
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`;
-      console.error(message);
-      return res.status(400).send(message);
-    }
-  }
-
-  const item = ShoppingList.create(req.body.name, req.body.budget);
-  res.status(201).json(item);
-});
-
-app.post('/recipes', jsonParser, (req, res) => {
-  const requiredFields = ['name', 'ingredients'];
-
-  for (let i = 0; i < requiredFields.length; i += 1) {
-    const field = requiredFields[i];
-
-    if (!(field in req.body)) {
-      const message = `Missing \`${field}\` in request body`;
-      console.error(message);
-      return res.status(400).send(message);
-    }
-  }
-
-  const item = Recipes.create(req.body.name, req.body.ingredients);
-  res.status(201).json(item);
-
 });
 
 app.listen(process.env.PORT || 1337, () => {

@@ -79,6 +79,65 @@ app.post('/recipes', jsonParser, (req, res) => {
   res.status(201).json(item);
 });
 
+// when PUT request comes in with updated item, ensure has
+// required fields. also ensure that item id in url path, and
+// item id in updated item object match. if problems with any
+// of that, log error and send back status code 400. otherwise
+// call `ShoppingList.update` with updated item.
+app.put('/shopping-list/:id', jsonParser, (req, res) => {
+  const requiredFields = ['name', 'budget', 'id'];
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  if (req.params.id !== req.body.id) {
+    console.log('here');
+    const message = `Request path id (${req.params.id}) and request body id (${req.body.id}) must match`;
+    console.error(message);
+    return res.status(400).send(message);
+  }
+  console.log(`Updating shopping list item \`${req.params.id}\``);
+  ShoppingList.update({
+    id: req.params.id,
+    name: req.body.name,
+    budget: req.body.budget
+  });
+  res.status(204).end();
+});
+
+app.put('/recipes/:id', jsonParser, (req, res) => {
+  const requiredFields = ['name', 'ingredients', 'id'];
+
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  if (req.params.id !== req.body.id) {
+    console.log('here');
+    const message = `Request path id (${req.params.id}) and request body id (${req.body.id}) must match`;
+    console.error(message);
+    return res.status(400).send(message);
+  }
+
+  console.log(`Updating recipe \`${req.params.id}\``);
+  Recipes.update({
+    name: req.body.name,
+    ingredients: req.body.ingredients,
+    id: req.params.id
+  });
+  res.status(204).end();
+});
+
 app.delete('/shopping-list/:id', (req, res) => {
   ShoppingList.delete(req.params.id);
   console.log(`Deleted shopping list item \`${req.params.id}\``);

@@ -17,12 +17,27 @@ ShoppingList.create('beans', 2);
 ShoppingList.create('tomatoes', 3);
 ShoppingList.create('peppers', 4);
 
-// adding some recipes to `Recipes` so there's something
-// to retrieve.
-Recipes.create(
-  'boiled white rice', ['1 cup white rice', '2 cups water', 'pinch of salt']);
-Recipes.create(
-  'milkshake', ['2 tbsp cocoa', '2 cups vanilla ice cream', '1 cup milk']);
+Recipes.create('Homemade Mac and Cheese', [
+  'Ronzoni Macaroni',
+  'Sharp Cheddar Cheese',
+  'Milk',
+  'Butter'
+]);
+
+Recipes.create('Morir Soñando', [
+  'Evaporated Milk',
+  'Orange Juice',
+  'Sugar',
+  'Crushed Ice'
+]);
+
+Recipes.create('Tuna Salad', [
+  'Tuna',
+  'Eggs',
+  'Mayonaise',
+  'Relish',
+  'Onions'
+]);
 
 // when the root of this router is called with GET, return
 // all current ShoppingList items
@@ -82,6 +97,40 @@ app.get('/recipes', (req, res) => {
   res.json(Recipes.get());
 })
 
-app.listen(process.env.PORT || 8080, () => {
-  console.log(`Your app is listening on port ${process.env.PORT || 8080}`);
+app.post('/shopping-list', jsonParser, (req, res) => {
+  // ensure `name` and `budget` are in request body
+  const requiredFields = ['name', 'budget'];
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`;
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  const item = ShoppingList.create(req.body.name, req.body.budget);
+  res.status(201).json(item);
+});
+
+app.post('/recipes', jsonParser, (req, res) => {
+  const requiredFields = ['name', 'ingredients'];
+
+  for (let i = 0; i < requiredFields.length; i += 1) {
+    const field = requiredFields[i];
+
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`;
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  const item = Recipes.create(req.body.name, req.body.ingredients);
+  res.status(201).json(item);
+
+});
+
+app.listen(process.env.PORT || 1337, () => {
+  console.log(`Your app is listening on port ${process.env.PORT || 1337}`);
 });
